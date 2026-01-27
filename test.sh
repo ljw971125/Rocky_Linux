@@ -22,6 +22,19 @@ if [ -f "$SSH_CONF" ]; then
 	fi
 fi
 
+echo -e "\n[1-2]Telnet 서비스 실행 여부 확인" >> $OUTPUT_FILE
+
+if rpm -qa | grep -q "telnet-server"; then
+	echo "[취약] Telnet-server 패키지가 설치되어 있습니다." >> $OUTPUT_FILE
+
+	if systemctl is-active --quiet telnet.socket; then
+	    echo "[취약] Telnet 서비스가 실행 중입니다." >> $OUTPUT_FILE 
+	else
+	    echo "[양호] 패키지는 설치되어 있으나 서비스가 중지되어 있습니다." >> $OUTPUT_FILE
+	fi
+else
+    echo "[양호] Telnet-server 패키지가 설치되어 있지 않습니다." >> $OUTPUT_FILE
+fi
 
 
 echo -e "\n[2]비밀번호 최소 사용,변경 기간 점검" >> $OUTPUT_FILE
@@ -54,7 +67,7 @@ if [ -f "$PWQ_CONF" ]; then
 	else
 	    echo "[취약] 비밀번호 정책이 보안정책에 위반됩니다." >> $OUTPUT_FILE
 	    echo -e "최소 비밀번호 개수 : 8자리 이상(현재 설정값(minlen) : $MIN_LEN_VAL)" >> $OUTPUT_FILE
-	    echo -e "최소 숫자(decredit) 요구 필수 입력값 : -1 (현재 설정값(dcredit) : $DCREDIT_VAL)" >> $OUTPUT_FILE
+	    echo -e "최소 숫자(decredit)  필수 입력값 : -1 (현재 설정값(dcredit) : $DCREDIT_VAL)" >> $OUTPUT_FILE
 	    echo -e "최소 대문자(ucredit) 필수 입력값 : -1 (현재 설정값(ucredit) : $UCREDIT_VAL)" >> $OUTPUT_FILE
 	    echo -e "최소 소문자(lcredit) 필수 입력값 : -1 (현재 설정값(lcredit) : $LCREDIT_VAL)" >> $OUTPUT_FILE
 	    echo -e "최소 특수문자(ocredit) 필수 입력값 : -1 (현재 설정값(ocredit) : $OCREDIT_VAL)" >> $OUTPUT_FILE
