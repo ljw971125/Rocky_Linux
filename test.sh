@@ -1,4 +1,6 @@
 OUTPUT_FILE="Test_Result.txt"
+REPORT_FILE="Test_Report.csv"
+printf "\xEF\xBB\xBF" > "$REPORT_FILE"
 
 echo "===================================" >> $OUTPUT_FILE
 echo "           보 안 점 검             " >> $OUTPUT_FILE
@@ -16,9 +18,11 @@ if [ -f "$SSH_CONF" ]; then
 	
 	if [ "$ROOT_LOGIN_VAL" == "no" ]; then
 	    echo -e "[양호] Root 원격 접속이 차단되어 있습니다. (설정값: $ROOT_LOGIN_VAL)" >> $OUTPUT_FILE
+	    echo -e "[1], 원격 접속 차단되어 있음, 양호" >> $REPORT_FILE
 	else
 	    echo -e "[취약] Root 원격 접속이 허용되어 있거나 설정이 미흡합니다." >> $OUTPUT_FILE
 	    echo -e "권장 설정값: no (현재 설정값(PermitRootLogin) : $ROOT_LOGIN_VAL)" >> $OUTPUT_FILE
+	    echo -e "[2], 원격 접속 차단되어 있지 않음, 취약" >> $REPORT_FILE
 	fi
 fi
 
