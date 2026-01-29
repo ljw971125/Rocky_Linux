@@ -96,7 +96,7 @@ if [ -f "$PWQ_CONF" ]; then
 	else
 	    echo "[취약] 비밀번호 최소 길이 요구값이 보안정책에 위반됩니다." >> $OUTPUT_FILE
 	    echo "권장 설정 값 : 8이상" >> $OUTPUT_FILE
-		
+	    echo "현재 설정 값 : $MIN_LEN_VAL" >> $OUTPUT_FILE
 	fi
 	echo -e "\n[3-2] 비밀번호 최소 숫자 개수" >> $OUTPUT_FILE
 	if [ "$DCREDIT_VAL" == -1 ]; then
