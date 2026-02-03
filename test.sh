@@ -35,6 +35,7 @@ if [ -f "$U01_SSH_CONF" ]; then
 	        # echo -e "[2], 원격 접속 차단되어 있지 않음, 취약" >> $REPORT_FILE
 	    fi
         else
+	    echo "확인 값 : PermitRootLogin" >> $OUTPUT_FILE
 	    echo "[취약] Root 원격 접속이 허용되어 있습니다." >> $OUTPUT_FILE
 	    echo "현재 설정값 : 주석" >> $OUTPUT_FILE
 	fi
@@ -56,11 +57,11 @@ fi
 echo "U01 점검 완료"
 
 
-U02_LOGIN_DEFS="/etc/login.defs"
 echo -e "\n====================================================" >> $OUTPUT_FILE
 echo "U02.비밀번호 관리 정책 점검" >> $OUTPUT_FILE
 echo "====================================================" >> $OUTPUT_FILE
 
+U02_LOGIN_DEFS="/etc/login.defs"
 echo -e "\n---------------------------------" >> $OUTPUT_FILE
 echo "점검 진행 파일 : $U02_LOGIN_DEFS" >> $OUTPUT_FILE
 echo "---------------------------------" >> $OUTPUT_FILE
@@ -79,6 +80,7 @@ if [ -f "$U02_LOGIN_DEFS" ]; then
 	        echo "현재 설정 값 : $U02_PASS_CHANGE_MAX_VAL" >> $OUTPUT_FILE
 	    fi
         else
+	    echo "확인 값 : PASS_MAX_DAYS" >> $OUTPUT_FILE
 	    echo "[취약] 비밀번호 최소 변경 기간이 설정되어 있지 않습니다." >> $OUTPUT_FILE
 	    echo "현재 설정 값 : 주석" >> $OUTPUT_FILE
 	fi    
@@ -94,6 +96,7 @@ if [ -f "$U02_LOGIN_DEFS" ]; then
 	        echo "현재 설정 값 : $U02_PASS_CHANGE_MIN_VAL" >> $OUTPUT_FILE
 	    fi
 	else
+	    echo "확인 값 : PASS_MIN_DAYS" >> $OUTPUT_FILE
 	    echo "[취약] 비밀번호 최소 사용 기간이 설정되어 있지 않습니다." >> $OUTPUT_FILE
 	    echo "현재 설정 값 : 주석" >> $OUTPUT_FILE
 	fi
@@ -119,10 +122,12 @@ if [ -f "$U02_1_PWQ_CONF" ]; then
 	        echo "[양호] 비밀번호 최소 길이 요구값이 보안정책에 맞게 설정되어 있습니다." >> $OUTPUT_FILE
 	    else
 	        echo "[취약] 비밀번호 최소 길이 요구값이 보안정책에 위반됩니다." >> $OUTPUT_FILE
+		echo "확인 값 : minlen" >> $OUTPUT_FILE
 	        echo "권장 설정 값 : 8이상" >> $OUTPUT_FILE
 	        echo "현재 설정 값 : $U02_1_MIN_LEN_VAL" >> $OUTPUT_FILE
 	    fi
         else
+	    echo "확인 값 : minlen" >> $OUTPUT_FILE
 	    echo "[취약] 비밀번호 최소 길이 요구값이 보안정책에 위반됩니다." >> $OUTPUT_FILE
 	    echo "현재 설정 값 : 주석" >> $OUTPUT_FILE
 	fi
@@ -133,10 +138,12 @@ if [ -f "$U02_1_PWQ_CONF" ]; then
 	        echo "[양호] 비밀번호 최소 숫자 요구값이 보안정책에 맞게 설정되어 있습니다." >> $OUTPUT_FILE
 	    else
 	        echo "[취약] 비밀번호 최소 숫자 요구값이 보안정책에 위반됩니다." >> $OUTPUT_FILE
+		echo "확인 값 : dcredit" >> $OUTPUT_FILE
 	        echo "필수 설정 값 : -1" >> $OUTPUT_FILE
 	        echo "현재 설정 값 : $U02_1_DCREDIT_VAL" >> $OUTPUT_FILE
 	    fi
 	else
+	    echo "확인 값 : dcredit" >> $OUTPUT_FILE
 	    echo "[취약] 비밀번호 최소 숫자 요구값이 보안정책에 위반됩니다." >> $OUTPUT_FILE
 	    echo "현재 설정 값 : 주석" >> $OUTPUT_FILE
 	fi
@@ -148,10 +155,12 @@ if [ -f "$U02_1_PWQ_CONF" ]; then
 	        echo "[양호] 비밀번호 최소 대문자 요구값이 보안정책에 맞게 설정되어 있습니다." >> $OUTPUT_FILE
 	    else
 	        echo "[취약] 비밀번호 최소 대문자 요구값이 보안정책에 위반됩니다." >> $OUTPUT_FILE
+		echo "확인 값 : ucredit" >> $OUTPUT_FILE
 	        echo "필수 설정 값 : -1" >> $OUTPUT_FILE
 	        echo "현재 설정 값 : $U02_1_UCREDIT_VAL" >> $OUTPUT_FILE
 	    fi
 	else 
+	    echo "확인 값 : ucredit" >> $OUTPUT_FILE
 	    echo "[취약] 비밀번호 최소 대문자 요구값이 보안정책에 위반됩니다." >> $OUTPUT_FILE
 	    echo "현재 설정 값 : 주석" >> $OUTPUT_FILE
 	fi
@@ -161,8 +170,8 @@ if [ -f "$U02_1_PWQ_CONF" ]; then
 	    echo "[양호] root 계정 비밀번호 정책이 적용되어 있습니다." >> $OUTPUT_FILE
 	else
 	    echo "[취약] root 계정 비밀번호 정책이 적용되어 있지 않습니다." >> $OUTPUT_FILE
-	    echo "enforce_for_root 주석 해제 또는 작성 필요"  >> $OUTPUT_FILE
-	    echo "현재 설정 값 : 주석" >> $OUTPUT_FILE
+	    echo "확인 값 : enforce_for_root" >> $OUTPUT_FILE
+	    echo "주석 해제 또는 작성 필요"  >> $OUTPUT_FILE
 	fi	
 	
 fi
@@ -179,7 +188,6 @@ if [ -f "$U02_2_PWHISTORY_CONF" ]; then
 	if [ "$U02_2_ENFORCE_FOR_ROOT_VAL" ]; then
             echo "[양호] root 계정 비밀번호 정책이 적용되어 있습니다." >> $OUTPUT_FILE
         else
-            echo "[취약] root 계정 비밀번호 정책이 적용되어 있지 않습니다." >> $OUTPUT_FILE
             echo "enforce_for_root 주석 해제 또는 작성 필요"  >>$OUTPUT_FILE
         fi
 
@@ -189,12 +197,71 @@ if [ -f "$U02_2_PWHISTORY_CONF" ]; then
 	        echo "[양호] 최근 비밀번호 기억 유효기간이 보안정책에 맞게 적용되어 있습니다." >> $OUTPUT_FILE
 	    else
 	        echo "[취약] 최근 비밀번호 기억 유효기간이 보안정책에 위반됩니다." >> $OUTPUT_FILE
+		echo "확인 값 : remember" >> $OUTPUT_FILE
 	        echo "필수 설정 값 : 4이상" >> $OUTPUT_FILE
 	        echo "현재 설정 값 : $U02_2_REMEMBER_VAL" >> $OUTPUT_FILE
 	    fi
 	else
 	    echo "[취약] 최근 비밀번호 기억 유효기간이 보안정책에 위반됩니다." >> $OUTPUT_FILE
-	    echo "enforce_for_root 주석 해제 또는 작성 필요"  >> $OUTPUT_FILE
+	    echo "확인 값 : remember" >> $OUTPUT_FILE
+	    echo "현재 설정 값 : 주석" >> $OUTPUT_FILE
+	fi
+
+fi
+echo "U02 점검 완료"
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U03.사용자 계정 로그인 실패 시 계정 잠금 임계값 설정 여부 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U03_FAILLOCK_CONF="/etc/security/faillock.conf"
+echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+echo "점검 진행 파일 : $U03_FAILLOCK_CONF" >> $OUTPUT_FILE
+echo "----------------------------------------------" >> $OUTPUT_FILE
+
+if [ -f "$U03_FAILLOCK_CONF" ]; then
+	U03_1_SILENT_VAL=$(grep "^\s*silent" $U03_FAILLOCK_CONF)
+	U03_1_DENY_VAL=$(grep "^\s*deny" $U03_FAILLOCK_CONF | awk '{print $3}')
+	U03_1_UNLOCK_TIME_VAL=$(grep "^\s*unlock_time" $U03_FAILLOCK_CONF | awk '{print $3}')
+	
+	echo -e "\nU03_1.비밀번호 오류 메시지 출력 여부 점검" >> $OUTPUT_FILE
+	if [ "$U03_1_SILENT_VAL" ]; then
+	    echo "[양호] 비밀번호 오류 메시지 출력을 하지 않습니다." >> $OUTPUT_FILE
+	else
+	    echo "[취약] 비밀번호 오류 메시지가 사용자에게 출력됩니다." >> $OUTPUT_FILE
+	    echo "확인 값 : silent" >> $OUTPUT_FILE
+	    echo "현재 설정 값 : 주석" >> $OUTPUT_FILE
+	fi
+	
+	echo -e "\nU03_2.비밀번호 실패 횟수에 따른 계정 잠금" >> $OUTPUT_FILE
+	if [ "$U03_1_DENY_VAL" ]; then
+	    if [ "$U03_1_DENY_VAL" -ge 3 ]; then
+		echo "[양호] 비밀번호 실패 횟수가 권장 보안정책에 맞게 적용되어 있습니다." >> $OUTPUT_FILE
+	    else
+		echo "[취약] 비밀번호 실패 횟수가 권장 보안정책에 맞지 않습니다." >> $OUTPUT_FILE
+		echo "확인 값 : deny" >> $OUTPUT_FILE
+		echo "권장 설정 값 : 3회 이상" >> $OUTPUT_FILE
+		echo "현재 설정 값 : $U03_1_DENY_VAL" >> $OUTPUT_FILE
+	    fi
+	else
+	    echo "[취약] 비밀번호 실패 횟수가 권장 보안정책에 맞지 않습니다." >> $OUTPUT_FILE
+	    echo "확인 값 : deny" >> $OUTPUT_FILE
+	    echo "현재 설정 값 : 주석" >> $OUTPUT_FILE
+	fi  
+	echo -e "\nU3_3.비밀번호 실패 횟수로 인한 계정잠금 시간 점검" >> $OUTPUT_FILE
+	if [ "$U03_1_UNLOCK_TIME_VAL" ]; then
+	    if [ "$U03_1_UNLOCK_TIME_VAL" -ge 120 ]; then
+		echo "[양호] 계정잠금 시간이 권장 보안정책에 맞게 적용되어 있습니다." >> $OUTPUT_FILE
+	    else
+		echo "[취약] 계정잠금 시간이 권장 보안정책에 맞지 않습니다." >> $OUTPUT_FILE
+		echo "확인 값 : UNLOCK_TIME" >> $OUTPUT_FILE
+		echo "권장 설정 값 : 120초 이상" >> $OUTPUT_FILE
+		echo "현재 설정 값 : $U03_1_UNLOCK_TIME_VAL" >> $OUTPUT_FILE
+	    fi
+	else
+	    echo "[취약] 계정잠금 시간이 권장 보안정책에 맞지 않습니다." >> $OUTPUT_FILE
+	    echo "확인 값 : UNLOCK_TIME" >> $OUTPUT_FILE
 	    echo "현재 설정 값 : 주석" >> $OUTPUT_FILE
 	fi
 fi
+echo "U03 점검 완료"
