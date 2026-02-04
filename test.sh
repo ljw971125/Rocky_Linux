@@ -248,7 +248,7 @@ if [ -f "$U03_FAILLOCK_CONF" ]; then
 	    echo "확인 값 : deny" >> $OUTPUT_FILE
 	    echo "현재 설정 값 : 주석" >> $OUTPUT_FILE
 	fi  
-	echo -e "\nU3_3.비밀번호 실패 횟수로 인한 계정잠금 시간 점검" >> $OUTPUT_FILE
+	echo -e "\nU03_3.비밀번호 실패 횟수로 인한 계정잠금 시간 점검" >> $OUTPUT_FILE
 	if [ "$U03_1_UNLOCK_TIME_VAL" ]; then
 	    if [ "$U03_1_UNLOCK_TIME_VAL" -ge 120 ]; then
 		echo "[양호] 계정잠금 시간이 권장 보안정책에 맞게 적용되어 있습니다." >> $OUTPUT_FILE
@@ -265,3 +265,27 @@ if [ -f "$U03_FAILLOCK_CONF" ]; then
 	fi
 fi
 echo "U03 점검 완료"
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U04.사용자 계정 비밀번호 암호화 저장 여부 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U04_PASSWD="/etc/passwd"
+
+echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+echo "점검 진행 파일 : $U04_PASSWD" >> $OUTPUT_FILE
+echo "----------------------------------------------" >> $OUTPUT_FILE
+
+echo -e "\nU04_1.쉐도우 비밀번호 적용 확인" >> $OUTPUT_FILE
+if [ -f "$U04_PASSWD" ]; then
+	U04_PASSWD_VAL=$(awk -F: '$2 != "x" {print $1}' $U04_PASSWD)
+	if [ "$U04_PASSWD_VAL" ]; then
+	    echo "[취약] 비밀번호가 암호화 되어 있지 않습니다." >> $OUTPUT_FILE
+	    echo "필수 설정 값 : x" >> $OUTPUT_FILE
+            echo -e "설정 누락 값 : \n$U04_PASSWD_VAL" >> $OUTPUT_FILE
+	else
+	    echo "[양호] 비밀번호가 암호화 되어 있습니다." >> $OUTPUT_FILE
+	fi
+
+fi
+echo "U04 점검 완료"
