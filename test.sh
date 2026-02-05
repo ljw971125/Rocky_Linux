@@ -289,3 +289,27 @@ if [ -f "$U04_PASSWD" ]; then
 
 fi
 echo "U04 점검 완료"
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U05.root 계정 중복 UID 유무 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U05_PASSWD="/etc/passwd"
+
+echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+echo "점검 진행 파일 : $U05_PASSWD" >> $OUTPUT_FILE
+echo "----------------------------------------------" >> $OUTPUT_FILE
+
+echo -e "\nU05_1.root UID값 중복 확인" >> $OUTPUT_FILE
+if [ -f "$U05_PASSWD" ]; then
+	U05_ROOT_UID_VAL=$(awk -F: '$3 == 0 {print $1}' $U05_PASSWD | grep -v "^root$" | wc -l)
+	U05_ROOT_DUP_UID_VAL=$(awk -F: '$3 == 0 {print $1}' $U05_PASSWD | grep -v "^root$")
+	if [ "$U05_ROOT_UID_VAL" -eq 0 ]; then
+	    echo "[양호]root와 중복되는 UID값을 가진 개체가 없습니다." >> $OUTPUT_FILE
+	else
+	    echo "[취약]root와 중복되는 UID값을 가진 개체가 $U05_ROOT_UID_VAL개 존재합니다." >> $OUTPUT_FILE
+	    echo "중복 UID값 : $U05_ROOT_DUP_UID_VAL" >> $OUTPUT_FILE
+	fi
+fi
+echo "U05 점검 완료"
+
