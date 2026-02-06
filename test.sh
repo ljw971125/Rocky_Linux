@@ -313,3 +313,41 @@ if [ -f "$U05_PASSWD" ]; then
 fi
 echo "U05 점검 완료"
 
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U06.su 명령어 사용 권한 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U06_GROUP="/etc/group"
+U06_SU="/etc/pam.d/su"
+
+if [ -f "$U06_GROUP" ]; then
+	
+	echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+	echo "점검 진행 파일 : $U06_GROUP" >> $OUTPUT_FILE
+	echo "----------------------------------------------" >> $OUTPUT_FILE
+
+	U06_GROUP_WHEEL_VAL=$(awk -F: '$1 == "wheel" {print $4}' $U06_GROUP)
+	U06_SU_WHEEL_VAL=$(grep "pam_wheel.so" /etc/pam.d/su | grep -v "^\s*#" | awk '{print $4}')
+
+	echo -e "\nU06_1.wheel 그룹 사용자 유무 점검" >> $OUTPUT_FILE
+	if [ "$U06_GROUP_WHEEL_VAL" ]; then
+	    echo "wheel 그룹에 사용자가 있습니다.(사용자 : $U06_GROUP_WHEEL_VAL)" >> $OUTPUT_FILE
+	else
+	    echo "wheel 그룹에 사용자가 없습니다." >> $OUTPUT_FILE
+	fi
+
+	echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+	echo "점검 진행 파일 : $U06_SU" >> $OUTPUT_FILE
+	echo "----------------------------------------------" >> $OUTPUT_FILE
+
+	echo -e "\nU06_2.su 명령어 그룹제한 점검">> $OUTPUT_FILE
+	if [ "$U06_SU_WHEEL_VAL" == "use_uid" ] || [ "$U06_SU_WHEEL_VAL" == "group=wheel" ]; then
+	    echo "[양호]su 명령어 그룹제한이 보안정책에 맞게 설정되었습니다." >> $OUTPUT_FILE
+	else
+	    echo "[취약]su 명령어 그룹제한이 보안정책에 위반됩니다." >> $OUTPUT_FILE
+	    echo "권장 설정값 : wheel사용자만 su명령어를 사용 가능" >> $OUTPUT_FILE
+	    echo "현재 설정값 : 주석" >> $OUTPUT_FILE
+	fi
+	
+fi
+echo "U06 점검 완료"
