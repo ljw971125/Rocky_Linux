@@ -327,7 +327,7 @@ if [ -f "$U06_GROUP" ]; then
 	echo "----------------------------------------------" >> $OUTPUT_FILE
 
 	U06_GROUP_WHEEL_VAL=$(awk -F: '$1 == "wheel" {print $4}' $U06_GROUP)
-	U06_SU_WHEEL_VAL=$(grep "pam_wheel.so" /etc/pam.d/su | grep -v "^\s*#" | awk '{print $4}')
+	U06_SU_WHEEL_VAL=$(grep "pam_wheel.so" $U06_SU | grep -v "^\s*#" | awk '{print $4}')
 
 	echo -e "\nU06_1.wheel 그룹 사용자 유무 점검" >> $OUTPUT_FILE
 	if [ "$U06_GROUP_WHEEL_VAL" ]; then
@@ -351,3 +351,56 @@ if [ -f "$U06_GROUP" ]; then
 	
 fi
 echo "U06 점검 완료"
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U07.시스템 계정 중 불필요한 계정 존재 여부 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U07_PASSWD="/etc/passwd"
+
+if [ -f "$U07_PASSWD" ]; then
+	
+	echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+        echo "점검 진행 파일 : $U07_PASSWD" >> $OUTPUT_FILE
+        echo "----------------------------------------------" >> $OUTPUT_FILE
+	
+	echo -e "\nU07_1.UID 1000미만 값들 중 불필요한 계정 존재 여부 점검" >> $OUTPUT_FILE
+
+	U07_CHECK_LIST="lp uucp nuucp games news ftp"
+	U07_MISS_ACCOUNTS=""
+
+	for U07_USER in $U07_CHECK_LIST; do
+	    if grep -q "^$U07_USER:" $U07_PASSWD; then
+
+		if [[ "$U07_USER" == "sync" || "$U07_USER" == "shutdown" || "$U07_USER" == "halt" ]]; then
+	            continue
+		fi
+
+		U07_USER_VAL=$(grep "^$U07_USER:" $U07_PASSWD | awk -F: '{print $7}')
+
+		if [[ "$U07_USER_VAL" != *"/nologin"* && "$U07_USER_VAL" != *"/false"* ]]; then
+			U07_MISS_ACCOUNTS="$U07_MISS_ACCOUNTS $U07_USER($U07_USER_VAL)"
+		fi
+	    fi
+	done
+
+	U07_PASSWD_ACCOUNT_UID=$(awk -F: '$3 < 1000 && $3 != 0 && $7 !~ /nologin|false/ {print $1}' $U07_PASSWD)
+
+	for U07_USER in $U07_PASSWD_ACCOUNT_UID; do
+
+	    if [[ "$U07_USER" == "sync" || "$U07_USER" == "shutdown" || "$U07_USER" == "halt" ]]; then
+                continue
+            fi
+	    if [[ "$U07_MISS_ACCOUNTS" != *$U07_USER* ]]; then
+	        U07_MISS_ACCOUNTS="$U07_MISS_ACCOUNTS $U07_USER(UID탐지)"
+	    fi
+	done
+
+	if [ -z "$U07_MISS_ACCOUNTS" ]; then
+	    echo "[양호]시스템 계정에 불필요한 계정이 존재하지 않습니다." >> $OUTPUT_FILE
+	else
+	    echo "[취약]시스템 계정에 불필요한 계정이 존재합니다." >> $OUTPUT_FILE
+	    echo "불필요한 계정 : $U07_MISS_ACCOUNTS" >> $OUTPUT_FILE
+	fi
+fi
+echo "U07 점검 완료"
