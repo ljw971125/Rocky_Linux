@@ -404,3 +404,27 @@ if [ -f "$U07_PASSWD" ]; then
 	fi
 fi
 echo "U07 점검 완료"
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U08.시스템 관리자 그룹 " >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U08_GROUP="/etc/group"
+
+if [ -f "$U08_GROUP" ]; then
+        echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+        echo "점검 진행 파일 : $U08_GROUP" >> $OUTPUT_FILE
+        echo "----------------------------------------------" >> $OUTPUT_FILE
+
+	echo -e "\nU08_1.root그룹 불필요 계정 존재 유무 점검" >> $OUTPUT_FILE
+
+	U08_GROUP_EQROOT=$(grep "^root:" $U08_GROUP | awk -F: '{print $4'} | tr -d '[:space:]')
+	
+	if [ "$U08_GROUP_EQROOT" == "" ]; then
+	    echo "[양호]root그룹에 불필요 계정이 존재하지 않습니다." >> $OUTPUT_FILE
+	else
+	    echo "[취약]root그룹에 불필요 계정이 존재합니다." >> $OUTPUT_FILE
+	    echo "root그룹 포함 계정 : $U08_GROUP_EQROOT" >> $OUTPUT_FILE
+	fi
+fi
+echo "U08 점검 완료"
