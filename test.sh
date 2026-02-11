@@ -428,3 +428,38 @@ if [ -f "$U08_GROUP" ]; then
 	fi
 fi
 echo "U08 점검 완료"
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U09.불필요한 그룹 존재 여부 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U09_GROUP="/etc/group"
+
+if [ -f "$U09_GROUP" ]; then
+	echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+        echo "점검 진행 파일 : $U09_GROUP" >> $OUTPUT_FILE
+        echo "----------------------------------------------" >> $OUTPUT_FILE
+	
+
+	echo -e "\nU09_1.불필요한 그룹 점검" >> $OUTPUT_FILE
+
+	U09_CHECK_LIST="lp uucp nuucp games news ftp"
+	U09_MISS_ACCOUNTS=""
+
+	for U09_VALN_GROUP in $U09_CHECK_LIST; do
+	    if grep -q "^$U09_VALN_GROUP:" $U09_GROUP; then
+		   U09_MISS_ACCOUNTS="$U09_MISS_ACCOUNTS $U09_VALN_GROUP"
+	    fi
+	done
+fi
+
+U09_CHECK_VAL=$(echo "$U09_MISS_ACCOUNTS" | tr -d '[:space:]')
+
+if [ -z "$U09_CHECK_VAL" ]; then
+    echo "[양호] 불필요한 그룹이 존재하지 않습니다." >> $OUTPUT_FILE
+else
+    echo "[취약] 불필요한 그룹이 존재합니다." >> $OUTPUT_FILE
+    echo "발견된 그룹 : $U09_MISS_ACCOUNTS" >> $OUTPUT_FILE
+fi
+
+echo "U09 점검 완료"
