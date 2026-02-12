@@ -463,3 +463,27 @@ else
 fi
 
 echo "U09 점검 완료"
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U10.UID가 동일한 사용자 계정 존재 여부 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U10_PASSWD="/etc/passwd"
+
+if [ -f "$U10_PASSWD" ]; then
+    echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+    echo "점검 진행 파일 : $U10_PASSWD" >> $OUTPUT_FILE
+    echo "----------------------------------------------" >> $OUTPUT_FILE
+
+    echo -e "\nU10_1.중복 UID 점검" >> $OUTPUT_FILE
+
+    U10_UID=$(awk -F: '{ print $3 }' /etc/passwd | sort -n | uniq -d)
+    if [ $U10_UID ]; then
+	echo "[취약] 동일한 UID를 가진 사용자가 존재합니다." >> $OUTPUT_FILE
+	echo "동일한 UID값 : $U10_UID" >> $OUTPUT_FILE
+    else
+	echo "[양호] 동일한 UID를 가진 사용자가 없습니다." >> $OUTPUT_FILE
+    fi
+fi
+
+echo "U10 점검 완료"
