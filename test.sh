@@ -446,9 +446,9 @@ if [ -f "$U09_GROUP" ]; then
 	U09_CHECK_LIST="lp uucp nuucp games news ftp"
 	U09_MISS_ACCOUNTS=""
 
-	for U09_VALN_GROUP in $U09_CHECK_LIST; do
-	    if grep -q "^$U09_VALN_GROUP:" $U09_GROUP; then
-		   U09_MISS_ACCOUNTS="$U09_MISS_ACCOUNTS $U09_VALN_GROUP"
+	for U09_VULN_GROUP in $U09_CHECK_LIST; do
+	    if grep -q "^$U09_VULN_GROUP:" $U09_GROUP; then
+		   U09_MISS_ACCOUNTS="$U09_MISS_ACCOUNTS $U09_VULN_GROUP"
 	    fi
 	done
 fi
@@ -477,7 +477,7 @@ if [ -f "$U10_PASSWD" ]; then
 
     echo -e "\nU10_1.중복 UID 점검" >> $OUTPUT_FILE
 
-    U10_UID=$(awk -F: '{ print $3 }' /etc/passwd | sort -n | uniq -d)
+    U10_UID=$(awk -F ':' '{ print $3 }' /etc/passwd | sort -n | uniq -d)
     if [ $U10_UID ]; then
 	echo "[취약] 동일한 UID를 가진 사용자가 존재합니다." >> $OUTPUT_FILE
 	echo "동일한 UID값 : $U10_UID" >> $OUTPUT_FILE
@@ -487,3 +487,39 @@ if [ -f "$U10_PASSWD" ]; then
 fi
 
 echo "U10 점검 완료"
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U11.U11.로그인이 불필요한 계정에 쉘 부여 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U11_PASSWD="/etc/passwd"
+
+if [ -f $U11_PASSWD ]; then
+    echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+    echo "점검 진행 파일 : $U11_PASSWD" >> $OUTPUT_FILE
+    echo "----------------------------------------------" >> $OUTPUT_FILE
+
+    echo -e "\nU11_1.로그인이 불필요한 계정에 쉘 부여 여부 확인" >> $OUTPUT_FILE
+
+    U11_CHECK_LIST="daemon bin sys adm listen nobody nobody4 noaccess diag operator games gopher"
+    U11_MISS_ACCOUNTS=""
+
+    for U11_VULN_GROUP in $U11_CHECK_LIST; do
+        if grep -q "^$U11_VULN_GROUP:" $U11_PASSWD; then
+            U11_USER_VAL=$(grep "^$U11_VULN_GROUP:" $U11_PASSWD | awk -F ':' '{print $7}')
+            if [ "$U11_USER_VAL" != "/usr/sbin/nologin" ] && [ "$U11_USER_VAL" != "/sbin/nologin" ]; then
+		    U11_MISS_ACCOUNTS="$U11_MISS_ACCOUNTS $U11_VULN_GROUP"
+            fi
+        fi
+    done
+
+    if [ -z "$U11_MISS_ACCOUNTS" ]; then
+        echo "[양호] 로그인이 불필요한 모든 계정에 쉘 부여가 되어 있습니다." >> $OUTPUT_FILE
+    else
+        echo "[취약] 로그인이 불필요한 계정에 쉘 부여가 되어 있지 않은 계정이 있습니다." >> $OUTPUT_FILE
+        echo "확인 값 : /usr/sbin/nologin, /sbin/nologin" >> $OUTPUT_FILE
+        echo "수정이 필요한 계정 : $U11_MISS_ACCOUNTS" >> $OUTPUT_FILE
+    fi
+fi
+
+echo "U11 점검 완료"
