@@ -489,7 +489,7 @@ fi
 echo "U10 점검 완료"
 
 echo -e "\n==============================================================" >> $OUTPUT_FILE
-echo "U11.U11.로그인이 불필요한 계정에 쉘 부여 점검" >> $OUTPUT_FILE
+echo "U11.로그인이 불필요한 계정에 쉘 부여 점검" >> $OUTPUT_FILE
 echo "==============================================================" >> $OUTPUT_FILE
 
 U11_PASSWD="/etc/passwd"
@@ -523,3 +523,34 @@ if [ -f $U11_PASSWD ]; then
 fi
 
 echo "U11 점검 완료"
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U12.사용자 쉘에 대한 환경설정 파일에서 Session Timeout 설정 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U12_PROFILE="/etc/profile /etc/profile.d/*.sh"
+
+echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+echo "점검 진행 파일 : $U12_PROFILE" >> $OUTPUT_FILE
+echo "----------------------------------------------" >> $OUTPUT_FILE
+
+echo -e "\nU12_1.Session Timeout 설정 파일 및 설정 유무 점검" >> $OUTPUT_FILE
+U12_RAW_VAL=$(grep "TMOUT=" $U12_PROFILE 2>/dev/null | grep -v "^#" | tail -1)
+
+if [ -z "$U12_RAW_VAL" ]; then
+    echo "[취약] TMOUT 설정이 적용되지 않았습니다." >> $OUTPUT_FILE
+else
+U12_DETECTED_FILE=$(echo "$U12_RAW_VAL" | cut -d: -f1)
+U12_TMOUT_VAL=$(echo "$U12_RAW_VAL" | awk -F '=' '{print $2}' | tr -d '[:space:]')
+
+if [ "$U12_TMOUT_VAL" -le 600 ]; then
+    echo "[양호] TMOUT 설정이 규정에 맞게 설정되어 있습니다." >> $OUTPUT_FILE
+    echo "설정 파일 위치 : $U12_DETECTED_FILE" >> $OUTPUT_FILE
+    else
+        echo "[취약] TMOUT 설정이 설정되어 있으나 권고치를 초과했습니다." >> $OUTPUT_FILE
+        echo "권고치 : 600초 이하" >> $OUTPUT_FILE
+	echo "설정 파일 위치 : $U12_DETECTED_FILE" >> $OUTPUT_FILE
+        echo "현재 설정 값 : $U12_TMOUT_VAL" >> $OUTPUT_FILE
+    fi
+fi   
+echo "U12 점검 완료"
