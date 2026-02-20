@@ -554,3 +554,46 @@ if [ "$U12_TMOUT_VAL" -le 600 ]; then
     fi
 fi   
 echo "U12 점검 완료"
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U13.비밀번호 암호화 알고리즘 사용 여부 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U13_LOGIN_DEF="/etc/login.defs"
+
+if [ -f "$U13_LOGIN_DEF" ]; then
+    echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+    echo "점검 진행 파일 : $U13_LOGIN_DEF" >> $OUTPUT_FILE
+    echo "----------------------------------------------" >> $OUTPUT_FILE
+
+    echo -e "\nU13_1.비밀번호 해시값 점검(login.def)" >> $OUTPUT_FILE
+    U13_HASH_VAL=$(grep -i "^ENCRYPT_METHOD" $U13_LOGIN_DEF | awk '{print $2}' | tr '[:lower:]' '[:upper:]')
+    
+    if [[ "$U13_HASH_VAL" == "SHA512" ]] || [[ "$U13_HASH_VAL" == "SHA256" ]] || [[ "$U13_HASH_VAL" == "YESCRYPT" ]]; then
+	echo "[양호] 비밀번호 암호화 알고리즘이 보안규정에 맞게 설정되어 있습니다." >> $OUTPUT_FILE
+    else
+	echo "[취약] 비밀번호 암호와 알고리즘이 보안규정에 위반됩니다." >> $OUTPUT_FILE
+	echo "권장 설정 값 : SHA512, SHA256, YESCRYPT" >> $OUTPUT_FILE
+	echo "현재 설정 값 : $U13_HASH_VAL" >> $OUTPUT_FILE
+    fi
+fi
+
+U13_2_SYSTEM_AUTH="/etc/pam.d/system-auth"
+
+if [ -f "$U13_2_SYSTEM_AUTH" ]; then
+    echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+    echo "점검 진행 파일 : $U13_2_SYSTEM_AUTH" >> $OUTPUT_FILE
+    echo "----------------------------------------------" >> $OUTPUT_FILE
+
+    echo -e "\nU13_2.비밀번호 해시값 점검(system-auth)" >> $OUTPUT_FILE
+    U13_2_HASH_VAL=$(grep "^password" "$U13_2_SYSTEM_AUTH" | grep "pam_unix.so" | grep -oE "(sha256|sha512|yescrypt)" | tail -1)
+    if [[ -n "$U13_2_HASH_VAL" ]]; then
+        echo "[양호] 비밀번호 암호화 알고리즘이 보안규정에 맞게 설정되어 있습니다." >> $OUTPUT_FILE
+    else
+        echo "[취약] 비밀번호 암호와 알고리즘이 보안규정에 위반됩니다." >> $OUTPUT_FILE
+        echo "권장 설정 값 : SHA512, SHA256, YESCRYPT" >> $OUTPUT_FILE
+        echo "현재 설정 값 : $U13_2_HASH_VAL" >> $OUTPUT_FILE
+    fi
+fi
+
+echo "U13 점검 완료"
