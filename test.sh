@@ -605,15 +605,33 @@ echo "U14.root 홈, 패스 디렉토리 권한 및 패스 설정" >> $OUTPUT_FIL
 echo "==============================================================" >> $OUTPUT_FILE
 
 echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
-    echo "점검 진행 파일 : \$PATH" >> $OUTPUT_FILE
-    echo "----------------------------------------------" >> $OUTPUT_FILE
+echo "점검 진행 파일 : \$PATH" >> $OUTPUT_FILE
+echo "----------------------------------------------" >> $OUTPUT_FILE
     
-    echo -e "\nU14_1.PATH 환경변수 설정 값 점검" >> $OUTPUT_FILE
-    if echo "$U14_PATH" | grep -qE "(^\.:|:\.:\^:|::)"; then
-        echo "[취약] PATH 환경변수 설정이 보안정책에 위반됩니다." >> $OUTPUT_FILE
-	echo "PATH 환경변수 맨 앞이나 중간에 '.' 또는 빈 경로가 포함되어 있습니다." >> $OUTPUT_FILE
-        echo "현재 PATH 설정 값 : $PATH" >> $OUTPUT_FILE
-    else
-	echo "[양호] PATH 환경변수 설정이 보안정책에 맞게 설정되어 있습니다." >> $OUTPUT_FILE
-    fi
+echo -e "\nU14_1.PATH 환경변수 설정 값 점검" >> $OUTPUT_FILE
+if echo "$U14_PATH" | grep -qE "(^\.:|:\.:\^:|::)"; then
+    echo "[취약] PATH 환경변수 설정이 보안정책에 위반됩니다." >> $OUTPUT_FILE
+    echo "PATH 환경변수 맨 앞이나 중간에 '.' 또는 빈 경로가 포함되어 있습니다." >> $OUTPUT_FILE
+    echo "현재 PATH 설정 값 : $PATH" >> $OUTPUT_FILE
+else
+    echo "[양호] PATH 환경변수 설정이 보안정책에 맞게 설정되어 있습니다." >> $OUTPUT_FILE
+fi
+
 echo "U14 점검 완료"
+
+U15_FIND=$(find / \( -nouser -o -nogroup \) -xdev -ls 2>/dev/null)
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U15.소유자가 존재하지 않는 파일 및 디렉토리 존재 여부 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+if [ -z $U15_FIND ]; then
+    echo "[양호] 소유자가 존재하지 않는 파일 또는 디렉토리가 존재하지 않습니다." >> $OUTPUT_FILE
+else
+    echo "[취약] 소유자가 존재하지 않는 파일 또는 디렉토리가 존재합니다." >> $OUTPUT_FILE
+    echo "====================================================================================================" >> $OUTPUT_FILE
+    echo -e "발견된 디렉토리 및 파일\n\n$U15_FIND" | head -n 7 >> $OUTPUT_FILE
+    echo "====================================================================================================" >> $OUTPUT_FILE
+fi
+
+echo "U15 점검 완료"
