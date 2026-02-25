@@ -635,3 +635,24 @@ else
 fi
 
 echo "U15 점검 완료"
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U16.passwd 파일 소유자 및 권한 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U16_PMS=$(stat -c "%a" /etc/passwd)
+U16_PASSWD="/etc/passwd"
+
+echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+echo "점검 진행 파일 : $U16_PASSWD" >> $OUTPUT_FILE
+echo "----------------------------------------------" >> $OUTPUT_FILE
+
+if [ "$U16_PMS" -le 644 ]; then
+    echo "[양호] passwd파일 권한이 정책에 맞게 설정되어 있습니다." >> $OUTPUT_FILE
+else
+    echo "[취약] passwd파일 권한이 정책에 위반됩니다." >> $OUTPUT_FILE
+    echo "권장 설정 값 : 644이하" >> $OUTPUT_FILE
+    echo "현재 설정 값 : $U16_PMS" >> $OUTPUT_FILE
+fi
+
+echo "U16 점검 완료"
