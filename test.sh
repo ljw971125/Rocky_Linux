@@ -656,3 +656,22 @@ else
 fi
 
 echo "U16 점검 완료"
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U17.시스템 시작 스크립트 권한 설정 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U17_PMS=$(find -L /etc/rc*.d/ -type f \( ! -user root -o -perm -002 \) -ls 2>/dev/null)
+
+echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+echo "점검 진행 파일 : /etc/rc*.d" >> $OUTPUT_FILE
+echo "----------------------------------------------" >> $OUTPUT_FILE
+
+if [ -z $U17_PMS ]; then
+    echo "[양호] 시스템 시작 스크립트 파일 권한이 정책에 맞게 설정되어 있습니다." >> $OUTPUT_FILE
+else
+    echo "[취약] 시스템 시작 스크립트 파일 권한이 정책에 위반됩니다." >> $OUTPUT_FILE
+    echo "발견된 파일 : $U17_PMS" >> $OUTPUT_FILE
+fi
+
+echo "U17 점검 완료"
