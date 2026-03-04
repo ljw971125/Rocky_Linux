@@ -696,3 +696,24 @@ else
 fi
 
 echo "U18 점검 완료"
+
+echo -e "\n==============================================================" >> $OUTPUT_FILE
+echo "U19.hosts파일 소유자 및 권한 점검" >> $OUTPUT_FILE
+echo "==============================================================" >> $OUTPUT_FILE
+
+U19_PMS=$(stat -c "%a" /etc/hosts)
+U19_HOSTS="/etc/hosts"
+
+echo -e "\n----------------------------------------------" >> $OUTPUT_FILE
+echo "점검 진행 파일 : $U19_HOSTS" >> $OUTPUT_FILE
+echo "----------------------------------------------" >> $OUTPUT_FILE
+
+if [ "$U19_PMS" -le 644 ]; then
+    echo "[양호] hosts파일 권한이 정책에 맞게 설정되어 있습니다." >> $OUTPUT_FILE
+else
+    echo "[취약] hosts파일 권한이 정책에 위반됩니다." >> $OUTPUT_FILE
+    echo "권장 설정 값 : 권한 644이하" >> $OUTPUT_FILE
+    echo "현재 설정 값 : $U19_PMS" >> $OUTPUT_FILE
+fi
+
+echo "U19 점검 완료"
